@@ -12,6 +12,7 @@ from shapely.wkt import loads as wkt_loads
 import numpy as np
 from tqdm import tqdm
 import requests
+import warnings
 
 
 def init_gob_table(engine, replace=False):
@@ -30,14 +31,14 @@ def init_gob_table(engine, replace=False):
                         longitude float,
                         area_in_meters float,
                         confidence float,
-                        geometry geometry(polygon, 4326))""")
+                        geometry geometry(point, 4326))""")
 
 
 def _download_and_extract(url, work_dir):
 
     hash = hashlib.md5(url.encode('utf-8'))
 
-    os.makedirs("{work_dir}/gob", exist_ok=True)
+    os.makedirs(f"{work_dir}/gob", exist_ok=True)
     # Download the file
     response = requests.get(url, stream=True)
     response.raise_for_status()
@@ -66,6 +67,10 @@ def _download_and_extract(url, work_dir):
 def _add_gdf(params):
 
     buildings_gdf = params[0]
+    with warnings.catch_warnings():
+        # complains about centroids being calculated in 4326, shut up nerd
+        warnings.simplefilter("ignore")
+        buildings_gdf.geometry = buildings_gdf.geometry.centroid
 
     engine = sa.create_engine(f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASS')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}")
     buildings_gdf.to_postgis("gob",
