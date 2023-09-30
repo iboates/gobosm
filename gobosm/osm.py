@@ -16,6 +16,7 @@ def _osm2pgsql(pbf, slim=False):
         "-H", os.getenv("DB_HOST"),
         "-P", str(os.getenv("DB_PORT")),
         "-l",  # EPSG 4326
+        "-O", "flex",
         "-S", "./flex/buildings.lua",
         pbf,
     ]
