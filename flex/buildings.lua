@@ -1,6 +1,6 @@
 buildings = osm2pgsql.define_table({
     name = 'osm',
-    ids = { type = 'any', id_column = 'osm_id', type_column = 'osm_type' },
+    ids = { type = 'any', id_column = 'id', },
     columns = {
         { column = 'geom', type = 'point', projection = 4326, not_null = true }
     }

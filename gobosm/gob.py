@@ -86,7 +86,7 @@ def load_gob(gob_url, work_dir, num_processes):
     df = pd.read_csv(gob_csv)
     geometry = df['geometry'].apply(wkt_loads)
     buildings_gdf = gpd.GeoDataFrame(df, geometry=geometry, crs=4326)
-    buildings_gdf.drop("full_plus_code", axis="columns", inplace=True)
+    buildings_gdf.drop([c for c in buildings_gdf if c != buildings_gdf.geometry.name], axis="columns", inplace=True)
 
     buildings_gdfs = np.array_split(buildings_gdf, num_processes * 100)
     params = [(buildings_gdf, ) for buildings_gdf in buildings_gdfs]
